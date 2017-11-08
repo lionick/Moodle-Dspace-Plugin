@@ -128,7 +128,7 @@ class repository_dspace extends repository {
             case 'item' :
                 $query = 'items/' . $path ['id'] . '/?expand=bitstreams,metadata';
                 $getChildren = function () use (&$apiCallResult) {
-                    return array_merge ( $apiCallResult->bitstreams, $apiCallResult->metadata );
+                    return array_merge ( $apiCallResult->bitstreams);
                 };
                 break;
             case 'communities' :
