@@ -48,7 +48,7 @@ class repository_dspace extends repository {
         if (!empty($path)) {
             $pathArray = json_decode($path);
         } else {
-            $pathArray = array(array( 'name' => '', 'type' => 'top-communities'));
+            $pathArray = array(array( 'name' => '', 'type' => 'communities'));
         }
         
         $list = array();
@@ -63,11 +63,7 @@ class repository_dspace extends repository {
         
         foreach($results as $result) {
             $itemPath = $pathArray;
-            $itemPath [] = array('name' => $result->name, 'id' => $result->id, 'type' => $result->type);
-            if ($result->countItems === 0) {
-                continue;
-            }
-            
+            $itemPath [] = array('name' => $result->name, 'id' => $result->uuid, 'type' => $result->type);
             $baseElement = array (
                     'title' => $result->name);
             
@@ -78,15 +74,15 @@ class repository_dspace extends repository {
                     $typeOptions = array (
                             'children' => array (),
                             'dynload' => true,
-                            'thumbnail' => $OUTPUT->pix_url ( file_folder_icon ( 64 ) )->out ( false ),
+                            'thumbnail' => $OUTPUT->pix_url ( file_folder_icon ( 256 ) )->out ( false ),
                             'path' => json_encode ( $itemPath ) 
                     );
                     break;
                 case 'bitstream':
                     $typeOptions = array (
-                    'thumbnail' => $OUTPUT->pix_url(file_extension_icon($result->name, 64))->out(false),
-                    'url' => $this->rest_url.'bitstreams/'.$result->id.'/retrieve',
-                    'source' => $this->rest_url.'bitstreams/'.$result->id.'/retrieve');
+                    'thumbnail' => $OUTPUT->pix_url(file_extension_icon($result->name, 256))->out(false),
+                    'url' => $this->rest_url.'bitstreams/'.$result->uuid.'/retrieve',
+                    'source' => $this->rest_url.'bitstreams/'.$result->uuid.'/retrieve');
                     break;
             }
 
@@ -98,7 +94,7 @@ class repository_dspace extends repository {
             $lastItem =  (array) end($pathArray);
             array_unshift($list['path'], array(
                     'path'=>json_encode($pathArray), 
-                    'name'=> strlen($lastItem['name']) <= 20 ? $lastItem['name'] : substr($lastItem['name'], 0, 17).'...'));
+		    'name'=> strlen($lastItem['name']) <= 20 ? $lastItem['name'] : substr($lastItem['name'], 0, 7).'...'));
             array_pop($pathArray);
             
         }
@@ -132,12 +128,12 @@ class repository_dspace extends repository {
             case 'item' :
                 $query = 'items/' . $path ['id'] . '/?expand=bitstreams,metadata';
                 $getChildren = function () use (&$apiCallResult) {
-                    return array_merge ( $apiCallResult->bitstreams );
+                    return array_merge ( $apiCallResult->bitstreams, $apiCallResult->metadata );
                 };
                 break;
-            case 'top-communities' :
+            case 'communities' :
             default :
-                $query = 'communities/top-communities';
+                $query = 'communities';
                 $getChildren = function () use (&$apiCallResult) {
                     return $apiCallResult;
                 };
@@ -222,3 +218,4 @@ class repository_dspace extends repository {
     }
     
 }
+
