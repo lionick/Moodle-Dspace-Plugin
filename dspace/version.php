@@ -11,6 +11,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 20160414;
+$plugin->version   = 20171109;
 $plugin->component = 'repository_dspace';
 $plugin->release = '1.0.0';
