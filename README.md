@@ -10,7 +10,7 @@ This is a fork of [original code](https://github.com/pmarrone/Moodle-Dspace-Plug
 Useful Links
 ------------
 
-[Source Code](https://github.com/up2university/Moodle-Dspace-Plugin)
+[Source Code](https://github.com/up2university/Moodle-Dspace-Plugin/tree/up2u)
 
 Installation
 ------------
