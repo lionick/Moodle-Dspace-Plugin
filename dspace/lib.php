@@ -78,26 +78,44 @@ class repository_dspace extends repository {
                             'path' => json_encode ( $itemPath ) 
                     );
                     break;
-                case 'bitstream':
+		case 'bitstream':
                     $typeOptions = array (
                     'thumbnail' => $OUTPUT->pix_url(file_extension_icon($result->name, 256))->out(false),
                     'url' => $this->rest_url.'bitstreams/'.$result->uuid.'/retrieve',
                     'source' => $this->rest_url.'bitstreams/'.$result->uuid.'/retrieve');
                     break;
             }
+	if($result->key &&  ($result->key == 'dc.identifier' || $result->key == 'dc.identifier.uri')){
+
+		switch($result->key){
+			case 'dc.identifier' :
+			    $baseElement = array (
+				    'title' => 'LO URL:'.$result->value);
+				break;
+			case 'dc.identifier.uri' :
+			    $baseElement = array (
+				    'title' => 'LO metadata URL:'.$result->value);
+				break;
+		}
+
+	    $typeOptions = array (
+	    'thumbnail' => $OUTPUT->pix_url(file_extension_icon('.xml', 256))->out(false),
+	    'url' => $result->value,
+	    'source' => $result->value);
+	}	
 
             $list ['list'] [] = array_merge($baseElement, $typeOptions);
         } 
         $list['path'] = array();
         
-        while (count($pathArray) > 0) {
-            $lastItem =  (array) end($pathArray);
-            array_unshift($list['path'], array(
-                    'path'=>json_encode($pathArray), 
+	while (count($pathArray) > 0) {
+	    $lastItem =  (array) end($pathArray);
+	    array_unshift($list['path'], array(
+		    'path'=>json_encode($pathArray), 
 		    'name'=> strlen($lastItem['name']) <= 20 ? $lastItem['name'] : substr($lastItem['name'], 0, 7).'...'));
-            array_pop($pathArray);
-            
-        }
+	    array_pop($pathArray);
+	    
+	}
         return $list;
     }
     
@@ -128,7 +146,15 @@ class repository_dspace extends repository {
             case 'item' :
                 $query = 'items/' . $path ['id'] . '/?expand=bitstreams,metadata';
                 $getChildren = function () use (&$apiCallResult) {
-                    return array_merge ( $apiCallResult->bitstreams);
+			$metadata = $apiCallResult->metadata;
+			$metadataArray = Array();
+			foreach($metadata as $mtd){
+				if($mtd->key == 'dc.identifier' || $mtd->key == 'dc.identifier.uri'){
+					array_push($metadataArray, $mtd);
+				}
+			}
+			$results = array_merge ($apiCallResult->bitstreams, $metadataArray);
+		    return $results;
                 };
                 break;
             case 'communities' :
@@ -141,7 +167,7 @@ class repository_dspace extends repository {
         }
         
         $apiCallResult = $this->call_api('GET', $query);
-        $childrenList = $getChildren();
+	$childrenList = $getChildren();
         return $childrenList;
      }
 
