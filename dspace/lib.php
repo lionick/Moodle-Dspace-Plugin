@@ -85,18 +85,10 @@ class repository_dspace extends repository {
                     'source' => $this->rest_url.'bitstreams/'.$result->uuid.'/retrieve');
                     break;
             }
-	if($result->key &&  ($result->key == 'dc.identifier' || $result->key == 'dc.identifier.uri')){
+	if($result->key && $result->key == 'dc.identifier'){
 
-		switch($result->key){
-			case 'dc.identifier' :
-			    $baseElement = array (
-				    'title' => 'LO URL:'.$result->value);
-				break;
-			case 'dc.identifier.uri' :
-			    $baseElement = array (
-				    'title' => 'LO metadata URL:'.$result->value);
-				break;
-		}
+	    $baseElement = array (
+		    'title' => 'LO URL:'.$result->value);
 
 	    $typeOptions = array (
 	    'thumbnail' => $OUTPUT->pix_url(file_extension_icon('.xml', 256))->out(false),
@@ -149,7 +141,7 @@ class repository_dspace extends repository {
 			$metadata = $apiCallResult->metadata;
 			$metadataArray = Array();
 			foreach($metadata as $mtd){
-				if($mtd->key == 'dc.identifier' || $mtd->key == 'dc.identifier.uri'){
+				if($mtd->key == 'dc.identifier'){
 					array_push($metadataArray, $mtd);
 				}
 			}
